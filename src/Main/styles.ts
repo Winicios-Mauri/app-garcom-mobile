@@ -20,6 +20,7 @@ export const MenuContainer = styled.View`
 `;
 
 export const Footer = styled.View`
+  padding: 16px 24px;
   min-height: 110px;
   background: #fff;
 `;

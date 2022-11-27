@@ -3,6 +3,9 @@ import { StatusBar } from "expo-status-bar";
 import { Main } from "./src/Main";
 import { Container } from "./src/Main/styles";
 
+import "intl";
+import "intl/locale-data/jsonp/pt-BR";
+
 export default function App() {
   const [isFontLoading] = useFonts({
     "GeneralSans-400": require("./src/assets/fonts/GeneralSans-Bold.otf"),
