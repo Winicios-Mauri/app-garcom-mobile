@@ -21,6 +21,14 @@ export function Main() {
     {
       quantity: 2,
       product: products[1],
+    },
+    {
+      quantity: 2,
+      product: products[2],
+    },
+    {
+      quantity: 2,
+      product: products[3],
     }
   ]);
 
