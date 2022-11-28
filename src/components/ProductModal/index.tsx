@@ -55,7 +55,7 @@ export function ProductModal({ visible, onClose, product }: ProductModalProps) {
         {
           product.ingredients.length > 0 && (
             <IngredientsContainer>
-              <Text color="#666">Ingredients</Text>
+              <Text color="#666">Ingredientes</Text>
               <FlatList
                 style={{ marginTop: 16 }}
                 data={product.ingredients}
