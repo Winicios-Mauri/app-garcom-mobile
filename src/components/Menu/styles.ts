@@ -1,17 +1,14 @@
 import styled from "styled-components/native";
 
-export const Product = styled.TouchableOpacity`
+export const ProductContainer = styled.TouchableOpacity`
   flex-direction: row;
-
-  /* align-items: center; Quando trazer a imagem descomentar essa linha  */
+  align-items: center;
 `;
 
 export const PrductImage = styled.Image`
   width: 120px;
   height: 96px;
   border-radius: 8px;
-
-  background: grey; // imagem não está pegando depois remover
 `;
 
 export const ProductDetails = styled.View`
