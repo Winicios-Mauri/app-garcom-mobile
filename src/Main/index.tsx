@@ -1,5 +1,5 @@
 
-import { Container, CategoriesContainer, MenuContainer, Footer, FooterContainer } from "./styles";
+import { Container, CategoriesContainer, MenuContainer, Footer, FooterContainer, CenteredContainer } from "./styles";
 import { Header } from "../components/Header";
 import { Categories } from "../components/Categories";
 import { Menu } from "../components/Menu";
@@ -8,36 +8,76 @@ import { TableModal } from "../components/TableModal";
 import { useState } from "react";
 import { Cart } from "../components/Cart";
 import { CartItem } from "../types/CartItem";
-import { products } from "../mocks/products";
+import { Product } from "../types/Product";
+import { ActivityIndicator } from "react-native";
+import { products as mockProducts } from "../mocks/products";
+import { Empty } from "../components/Icons/Empty";
+import { Text } from "../components/Text";
 
 export function Main() {
-  const [ isTableModalVisible, setisTableModalVisible] = useState(false);
-  const [ selectedTable, setselectedTable] = useState("");
-  const [ cartItems, setcartItems ] = useState<CartItem[]>([
-    {
-      quantity: 1,
-      product: products[0],
-    },
-    {
-      quantity: 2,
-      product: products[1],
-    },
-    {
-      quantity: 2,
-      product: products[2],
-    },
-    {
-      quantity: 2,
-      product: products[3],
-    }
-  ]);
+  const [isLoading] = useState(false);
+  const [isTableModalVisible, setisTableModalVisible] = useState(false);
+  const [selectedTable, setselectedTable] = useState("");
+  const [cartItems, setcartItems] = useState<CartItem[]>([]);
+  const [products] = useState<Product[]>(mockProducts);
 
-  function handleSaveTable(table: string){
+  function handleAddToCart(product: Product) {
+    if (!selectedTable) {
+      setisTableModalVisible(true);
+    }
+
+    setcartItems((prevState) => {
+      const itemIndex = prevState.findIndex(
+        cartItem => cartItem.product._id === product._id);
+
+      if (itemIndex < 0) {
+        return prevState.concat({
+          quantity: 1,
+          product,
+        });
+      }
+
+      const newCartItem = [...prevState];
+      const item = newCartItem[itemIndex];
+      newCartItem[itemIndex] = {
+        ...item,
+        quantity: item.quantity + 1,
+      };
+
+      return newCartItem;
+    });
+  }
+
+  function handleDecrementCartItem(product: Product) {
+    setcartItems((prevState) => {
+      const itemIndex = prevState.findIndex(
+        cartItem => cartItem.product._id === product._id);
+
+      const item = prevState[itemIndex];
+      const newCartItem = [...prevState];
+
+      if (item.quantity === 1) {
+        newCartItem.splice(itemIndex, 1);
+
+        return newCartItem;
+      }
+
+      newCartItem[itemIndex] = {
+        ...item,
+        quantity: item.quantity - 1,
+      };
+
+      return newCartItem;
+    });
+  }
+
+  function handleSaveTable(table: string) {
     setselectedTable(table);
   }
 
-  function handleCancelOrder(){
+  function handleResetOrder() {
     setselectedTable("");
+    setcartItems([]);
   }
 
   return (
@@ -46,16 +86,40 @@ export function Main() {
 
         <Header
           selectedTable={selectedTable}
-          onCancelOrder={handleCancelOrder}
+          onCancelOrder={handleResetOrder}
         />
 
-        <CategoriesContainer>
-          <Categories />
-        </CategoriesContainer>
+        {isLoading && (
+          <CenteredContainer>
+            <ActivityIndicator color="#d73035" size="large" />
+          </CenteredContainer>
+        )}
 
-        <MenuContainer>
-          <Menu />
-        </MenuContainer>
+        {
+          !isLoading && (
+            <>
+              <CategoriesContainer>
+                <Categories />
+              </CategoriesContainer>
+
+              {products.length > 0 && (
+                <MenuContainer>
+                  <Menu
+                    onAddToCard={handleAddToCart}
+                    products={products}
+                  />
+                </MenuContainer>
+              )}
+
+              {products.length <= 0 && (
+                <CenteredContainer>
+                  <Empty />
+                  <Text color="#666" weight="600" style={{ marginTop: 24 }}>Nenhum produto encontrado</Text>
+                </CenteredContainer>
+              )}
+            </>
+          )
+        }
 
       </Container>
 
@@ -63,21 +127,26 @@ export function Main() {
         <FooterContainer>
           {
             !selectedTable && (
-              <Button onPress= {() => setisTableModalVisible(true)}>
+              <Button onPress={() => setisTableModalVisible(true)} disabled={isLoading}>
                 Novo Pedido
               </Button>
             )
           }
 
           {selectedTable && (
-            <Cart cartItems={cartItems}/>
+            <Cart
+              cartItems={cartItems}
+              onAdd={handleAddToCart}
+              onDecrement={handleDecrementCartItem}
+              onConfirmOrder={handleResetOrder}
+            />
           )}
         </FooterContainer>
       </Footer>
 
       <TableModal
         visible={isTableModalVisible}
-        onClose= {() => setisTableModalVisible(false)}
+        onClose={() => setisTableModalVisible(false)}
         onSave={handleSaveTable}
       />
     </>
